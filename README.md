@@ -78,12 +78,12 @@ To report the scores of an incremental flow, a standard table with breakdown
 per task and QoR target is used, with a overall ANUBIS Value (larger is
 better). A sample table is show below.
 
-| Task   | Delay     | Energy    | Area      | \gmean         |
-| ------ | --------- | --------- | --------- | -------------- |
-| Synth  | $an_s_d$  | $an_s_e$  | $an_s_a$  | \gmean(s)      |
-| Place  | $an_p_d$  | $an_p_e$  | $an_p_a$  | \gmean(p)      |
-| Route  | $an_r_d$  | $an_r_e$  | $an_r_a$  | \gmean(r)      |
-| \gmean | \gmean(d) | \gmean(e) | \gmean(a) | \gmean(\gmean) |
+| Task   | Delay     | Energy    | Area      | \gmean         | Full         |
+| ------ | --------- | --------- | --------- | -------------- |--------------|
+| Synth  | $an_s_d$  | $an_s_e$  | $an_s_a$  | \gmean(s)      | full(s)      |
+| Place  | $an_p_d$  | $an_p_e$  | $an_p_a$  | \gmean(p)      | full(p)      |
+| Route  | $an_r_d$  | $an_r_e$  | $an_r_a$  | \gmean(r)      | full(r)      |
+| \gmean | \gmean(d) | \gmean(e) | \gmean(a) | \gmean(\gmean) | \gmean(full) |
 
 If you have a new record and want your results to be displayed here, send your
 results, with a binary (or source code) and if we can reproduce your results, we
@@ -106,6 +106,14 @@ If you use ANUBIS to evaluate your flow, please use the following citation:
   month = {Jun},
 }
 ```
+
+## Authors ##
+
+[Rafael Trapani Possignolo](https://users.soe.ucsc.edu/~rafaeltp)
+[Nursultan Kabylkas](https://users.soe.ucsc.edu/~nkabylka)
+[Jose Renau](https://users.soe.ucsc.edu/~renau)
+
+All authors are affiliated to the [MASC](https://masc.soe.ucsc.edu).
 
 ## License ##
 
