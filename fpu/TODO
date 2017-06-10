@@ -1,0 +1,48 @@
+
+1-Run formality and check for potential problems.
+
+2-What are the SDFG errors?
+
+3-Remove all the resets from the code
+
+
+
+--------------------
+
+1-Cleanup the shift (critical path on division) with an additional pipeline stage.
+
+2-Fix/finish the fix point
+
+  ./simv +test=umul ; works fine but umulcc, udiv, udivcc, smul, smulcc, sdiv, sdivcc fail
+
+3-Implement SQRT
+
+4-FPGA Area overhead
+
+ -Division is over 25% area of the design. Reduce the number of outstanding divisions. Maybe
+implement a more FPGA friendly division
+
+ -fpu operates with 64bit mantisas. A 64bit mantisa is only required for some fix operations (div), but
+ only in some operands. E,g: multiply does not need 64bit (just 32), divide only the src1 not src2.
+
+5-Speedup division
+
+ Division takes 64 cycles. After every shift, it should check if there are more division values and
+try to finish early.
+
+ ----------------------------
+
+Related FPUs:
+
+ -Meiko_FPU: scoore_fpu should cycle faster than meiko. FPGA (69MHz, 1404ALMs) ASIC (200MHz, 33mW)
+
+ -Niagara: Niagara FPU cycles at 1.2GHz. We should have a much smaller area (1/2) while we cycle faster (1.4GHz).
+
+ -OpenSource FPU (http://www.ece.neu.edu/groups/rpl/projects/floatingpoint/index.html)
+
+ -Leon 3 FPU (Gaisler). It uses less than 5000 LUTs.
+
+# Power dump
+
+ read_vcd -rtl ../fpu_rtl.vcd -strip_path fpu_tb/fp_test -time {10010e9 10010e10}
+

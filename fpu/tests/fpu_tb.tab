@@ -1,0 +1,6 @@
+$fpu_set     call=fpu_set     acc=rw:fpu_tb
+$fpu_check   call=fpu_check   acc=r:fpu_tb
+$fpu_init    call=fpu_init    acc=r:fpu_tb
+$inc_stat1   call=inc_stat1   acc=r:fpu_tb
+$inc_stat2   call=inc_stat2   acc=r:fpu_tb
+

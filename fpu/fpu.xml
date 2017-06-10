@@ -1,0 +1,22 @@
+<project name="fpu">
+  <requires>storage</requires>
+  <requires>retry</requires>
+  <asic frequency="750" tech="32" suite="dct"/>
+  <asic base="fpu"/>
+  <catalyst base="fpu" test="fpu_tb"/>
+  <verify base="fpu"/>
+  <fpga base="fpu" tool="synplify"/>
+  <testbench base="fpu_tb" suite="vcs">
+    <CC>-Wall -Itests/SoftFloat/littleendian/ -I../tests/SoftFloat/littleendian/ -I../../tests/SoftFloat/littleendian</CC>
+    <verilog>tests/fpu_tb.v</verilog>
+    <tab>tests/fpu_tb.tab</tab>
+    <source>
+      tests/fpu_tb.cpp
+      tests/SoftFloat/softfloat.cpp
+      tests/SoftFloat/fputest.cpp
+    </source>
+  </testbench>
+  <regression target="test"> fpu_tb </regression>
+  <regression target="asic"> fp_unit </regression>
+  <regression target="fpga"> fp_unit </regression>
+</project>
