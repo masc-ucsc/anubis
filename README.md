@@ -110,7 +110,9 @@ If you use ANUBIS to evaluate your flow, please use the following citation:
 ## Authors ##
 
 [Rafael Trapani Possignolo](https://users.soe.ucsc.edu/~rafaeltp)
+
 [Nursultan Kabylkas](https://users.soe.ucsc.edu/~nkabylka)
+
 [Jose Renau](https://users.soe.ucsc.edu/~renau)
 
 All authors are affiliated to the [MASC](https://masc.soe.ucsc.edu).
