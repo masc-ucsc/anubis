@@ -58,7 +58,7 @@ history in the repository of the designs and/or commented out code.
 ## Scoring ##
 
 The ANUBIS score depends on the runtime, normalized to the
-[YOSYS](www.clifford.at/yosys/) runtime, and corrected with the
+[YOSYS](http://www.clifford.at/yosys/) runtime, and corrected with the
 Quality-of-Results (QoR) degradation for delay, energy (power x frequency) and
 area.  For each change, the corrected runtime is calculated as
 
@@ -91,7 +91,7 @@ will include your score in this page with a link to your work.
 
 ## More Details ##
 
-For more details, check the [ANUBIS paper](https://users.soe.ucsc.edu/~rafaeltp/files/anubis-iwls2017.pdf).
+For more details, check the [ANUBIS paper](https://masc.soe.ucsc.edu/docs/iwls17.pdf).
 
 ## Citing ##
 
@@ -135,7 +135,8 @@ a different license. ANUBIS include the following third part benchmarks:
 - Distributed under GNU Lesser General Public License version 2.1
 
 5. ALPHA / DLX:
-- Distributed under the Bug UnderGround UMich project (http://bug.eecs.umich.edu/).
+- Distributed under the [Bug UnderGround](http://bug.eecs.umich.edu/) UMich
+  project.
 Authors do not warrant or assume any legal responsibility for the accuracy,
 completeness, or usefulness of this software, nor for any damage derived by its
 use.
