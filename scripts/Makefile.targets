@@ -1,0 +1,88 @@
+
+%-full-prep:
+	$(ECHO) "[ANUBIS][FULL] Preparing full synthesis"
+	$(MKDIR) $(BASEDIR)
+	$(MKDIR) $(OUTDIR)
+	$(MKDIR) $(OUTDIR)/$*/
+	$(MKDIR) $(OUTDIR)/$*/full/
+
+%-base-prep:
+	$(ECHO) "[ANUBIS][BASE] Preparing baseline synthesis"
+	$(MKDIR) $(BASEDIR)
+	$(MKDIR) $(OUTDIR)
+	$(MKDIR) $(OUTDIR)/$*/
+	$(MKDIR) $(OUTDIR)/$*/base
+
+%-inc-prep:
+	$(ECHO) "[ANUBIS][INCR] Preparing incremental synthesis"
+	$(MKDIR) $(BASEDIR)
+	$(MKDIR) $(OUTDIR)
+	$(MKDIR) $(OUTDIR)/$*/
+	$(MKDIR) $(OUTDIR)/$*/incr/
+
+define create_targets
+
+base-$1:
+	$(ECHO) "[ANUBIS][BASE] Starting baseline synthesis $1"
+	$(call base_synthesis,$1,${TOP_$1},${$1_TARGET},${OUTDIR}/$1/base)
+
+$(eval NUMBERS := $(shell seq 1 ${NOC_$1}))
+$(eval NOCSF := $(addprefix $1-full-noc-,${NUMBERS}))
+$(eval NOCSI := $(addprefix $1-incr-noc-,${NUMBERS}))
+
+${NOCSF}: $1-full-noc-%:
+	$(ECHO) "[ANUBIS][FULL][NOC] Starting full synthesis NoC for $1 diff $$*"
+	$(MKDIR) $(OUTDIR)/$1/full/noc_$$*/
+	$(call full_synthesis,$1,${TOP_$1},noc,ANUBIS_NOC_$$$$*,${$1_TARGET},$(OUTDIR)/$1/full/noc_$$$$*/)
+
+
+${NOCSI}: $1-incr-noc-%:
+	$(ECHO) "[ANUBIS][INCR][NOC] Starting incr synthesis NoC for $1 diff $$*"
+	$(MKDIR) $(OUTDIR)/$1/incr/noc_$$*/
+	$(call incr_synthesis,$1,${TOP_$1},NOC,ANUBIS_NOC_$$$$*,${$1_TARGET},$(OUTDIR)/$1/incr/noc_$$$$*/, $(OUTDIR)/$1/base)
+
+
+$(eval NUMBERS := $(shell seq 1 ${$1_LOCAL}))
+$(eval LOCALSF := $(addprefix $1-full-local-,${NUMBERS}))
+$(eval LOCALSI := $(addprefix $1-incr-local-,${NUMBERS}))
+
+${LOCALSF}: $1-full-local-%:
+	$(ECHO) "[ANUBIS][FULL][LOCAL] Starting full synthesis LOCAL for $1 diff $$*"
+	$(MKDIR) $(OUTDIR)/$1/full/local_$$*/
+	$(call full_synthesis,$1,${TOP_$1},local,ANUBIS_LOCAL_$$$$*,${$1_TARGET},$(OUTDIR)/$1/full/local_$$$$*/)
+
+${LOCALSI}: $1-incr-local-%:
+	$(ECHO) "[ANUBIS][INCR][LOCAL] Starting incr synthesis LOCAL for $1 diff $$*"
+	$(MKDIR) $(OUTDIR)/$1/incr/local_$$*/
+	$(call incr_synthesis,$1,${TOP_$1},local,ANUBIS_LOCAL_$$$$*,${$1_TARGET},$(OUTDIR)/$1/incr/local_$$$$*/, $(OUTDIR)/$1/base)
+
+
+$(eval NUMBERS := $(shell seq 1 ${$1_GLOBALS}))
+$(eval GLOBALSF := $(addprefix $1-full-global-,${NUMBERS}))
+$(eval GLOBALSI := $(addprefix $1-incr-global-,${NUMBERS}))
+
+${GLOBALSF}: $1-full-global-%:
+	$(ECHO) "[ANUBIS][FULL][GLOBAL] Starting full synthesis GLOBAL for $1 diff $$*"
+	$(MKDIR) $(OUTDIR)/$1/full/global_$$*/
+	$(call full_synthesis,$1,${TOP_$1},global,ANUBIS_GLOBAL_$$$$*,${$1_TARGET},$(OUTDIR)/$1/full/global_$$$$*/)
+
+${GLOBALSI}: $1-incr-global-%:
+	$(ECHO) "[ANUBIS][INCT][GLOBAL] Starting incr synthesis GLOBAL for $1 diff $$*"
+	$(MKDIR) $(OUTDIR)/$1/incr/global_$$*/
+	$(call incr_synthesis,$1,${TOP_$1},global,ANUBIS_GLOBAL_$$$$*,${$1_TARGET},$(OUTDIR)/$1/incr/global_$$$$*/, $(OUTDIR)/$1/base)
+
+full-$1: $1-full-prep ${NOCSF} ${LOCALSF} ${GLOBALSF}
+
+incr-$1: $1-base-prep base-$1 $1-inc-prep ${NOCSI} ${LOCALSI} ${GLOBALSI}
+
+endef
+
+
+$(foreach BENCH,$(BENCHMARKS),$(eval $(call create_targets,${BENCH})))
+
+FULLS := $(addprefix full-,${BENCHMARKS})
+INCRS := $(addprefix incr-,${BENCHMARKS})
+
+complete: ${FULLS} ${INCRS}
+
+

@@ -152,7 +152,7 @@ reg				wait_lsu;
    //
 `ifdef ANUBIS_LOCAL_2
    assign icpu_cycstb_o = ~(genpc_freeze | (|pre_branch_op && !icpu_rty_i));
-`ifdef ANUBIS_GLOBAL_1
+`elsif ANUBIS_GLOBAL_1
    assign icpu_cycstb_o = ~(genpc_freeze | (|pre_branch_op && !icpu_rty_i));
 `else
    assign icpu_cycstb_o = ~(genpc_freeze | (|pre_branch_op && !icpu_rty_i) | wait_lsu);
@@ -328,7 +328,7 @@ reg				wait_lsu;
      end
 `ifdef ANUBIS_LOCAL_1
      else if (no_more_dslot | except_start | !genpc_freeze & !icpu_rty_i 
-`ifdef ANUBIS_GLOBAL_0
+`elsif ANUBIS_GLOBAL_0
      else if (no_more_dslot | except_start | !genpc_freeze & !icpu_rty_i 
 `else
      else if (du_flush_pipe | no_more_dslot | except_start | !genpc_freeze & !icpu_rty_i 

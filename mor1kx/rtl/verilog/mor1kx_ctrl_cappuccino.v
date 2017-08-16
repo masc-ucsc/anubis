@@ -917,7 +917,13 @@ module mor1kx_ctrl_cappuccino
    assign spr_isr[6] = 0;
    assign spr_isr[7] = 0;
 `else
-   assign spr_isr[7:0] = 8'b00000000;
+  genvar k;
+  generate
+    for (k = 0; k < 8; k = k + 1)
+    begin
+      assign spr_isr[k] = 0;
+    end
+  endgenerate
 `endif
 
    // System group (0) SPR data out
