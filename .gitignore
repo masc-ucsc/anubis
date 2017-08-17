@@ -4,3 +4,13 @@
 outdir/*
 unmatchedCells.txt
 *.os
+arch_flags
+abc-default
+yosys-abc
+yosys-config
+yosys-filterlib
+yosys-smtbmc
+.Xil
+*.jou
+*.log
+

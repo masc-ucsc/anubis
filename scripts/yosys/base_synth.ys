@@ -1,0 +1,25 @@
+
+verilog_defaults -add -D%%DEFINE%%=1
+
+hierarchy -top %%TOP%%
+select -assert-any %%TOP%%
+select -clear
+proc_arst
+proc
+opt -fast
+
+proc
+flatten
+synth -run coarse
+opt -fast -full
+memory -nomap
+opt -full
+opt -fast
+techmap -D ALU_RIPPLE
+opt -fast
+abc -D %%TARGET%% %%TOP%%
+
+clean
+hierarchy -check
+stat
+
