@@ -1,3 +1,6 @@
 *.d
 *.o
 *.swp
+outdir/*
+unmatchedCells.txt
+*.os

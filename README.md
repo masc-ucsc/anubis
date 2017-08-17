@@ -7,10 +7,12 @@ hours to get accurate results to design changes that are often quite small.
 Incremental synthesis has emerged as an attempt to reduce these long times, but
 research in incremental synthesis currently lacks a consistent benchmark to
 enable comparison between different flows and is reflective of real design
-changes.  In this paper, we propose ANUBIS, a benchmark for incremental synthesis
-based on real designs and real design changes. ANUBUS comes with a standard score
-that allows for easily comparing different flows. We evaluate ANUBIS using two
-incremental flows for FPGAs to give insights on its usage and reporting.
+changes. ANUBIS is the first benchmark suite intended for evaluating incremental
+synthesis techniques and flows. It has been presented in the [2017 International
+Workshop of Logic and Synthesis](http://www.iwls.org/iwls2017). This repository
+includes the verilog code for the benchmarks with code changes that can be activated
+through define statements. We also included scripts to run sample flows based
+that already include incremental steps.
 
 ## Usage ##
 

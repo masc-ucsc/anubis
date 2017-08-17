@@ -26,7 +26,7 @@ base-$1:
 	$(ECHO) "[ANUBIS][BASE] Starting baseline synthesis $1"
 	$(call base_synthesis,$1,${TOP_$1},${$1_TARGET},${OUTDIR}/$1/base)
 
-$(eval NUMBERS := $(shell seq 1 ${NOC_$1}))
+$(eval NUMBERS := $(shell seq 0 ${NOC_$1}))
 $(eval NOCSF := $(addprefix $1-full-noc-,${NUMBERS}))
 $(eval NOCSI := $(addprefix $1-incr-noc-,${NUMBERS}))
 
@@ -42,7 +42,7 @@ ${NOCSI}: $1-incr-noc-%:
 	$(call incr_synthesis,$1,${TOP_$1},NOC,ANUBIS_NOC_$$$$*,${$1_TARGET},$(OUTDIR)/$1/incr/noc_$$$$*/, $(OUTDIR)/$1/base)
 
 
-$(eval NUMBERS := $(shell seq 1 ${$1_LOCAL}))
+$(eval NUMBERS := $(shell seq 0 ${LOCAL_$1}))
 $(eval LOCALSF := $(addprefix $1-full-local-,${NUMBERS}))
 $(eval LOCALSI := $(addprefix $1-incr-local-,${NUMBERS}))
 
@@ -57,7 +57,7 @@ ${LOCALSI}: $1-incr-local-%:
 	$(call incr_synthesis,$1,${TOP_$1},local,ANUBIS_LOCAL_$$$$*,${$1_TARGET},$(OUTDIR)/$1/incr/local_$$$$*/, $(OUTDIR)/$1/base)
 
 
-$(eval NUMBERS := $(shell seq 1 ${$1_GLOBALS}))
+$(eval NUMBERS := $(shell seq 0 ${$GLOBAL_1}))
 $(eval GLOBALSF := $(addprefix $1-full-global-,${NUMBERS}))
 $(eval GLOBALSI := $(addprefix $1-incr-global-,${NUMBERS}))
 
