@@ -44,7 +44,7 @@ define full_synthesis
 	$(ECHO) "create_clock -period ${TARGET} -name clk [get_ports clk]" > ${OUTPUT}/constraints.xdc
 	$(CAT) $(FILES) base_synth.tcl | sed s/%%TOP%%/${TOP}/ | sed s/%%CHECKPOINT%%/"$(subst /,\/,$(OUTPUT))\/checkpoints"/ | sed s/%%CONSTRAINTS%%/"$(subst /,\/,$(OUTPUT))\/constraints.xdc"/ | sed s/%%DEFINE%%/"-verilog_define ${DEFINE}=1"/ > ${OUTPUT}/full.tcl
 	$(VIVADO) -mode batch -source ${OUTPUT}/full.tcl -tclargs ${DEFINE} > $(OUTPUT)/report
-	$(MV) vivado* .Xil fsm_encoding.os unmatchedCells.txt $(OUTPUT)
+	$(MV) vivado* .Xil unmatchedCells.txt $(OUTPUT)
 endef
 
 #benchmark top target output_directory
@@ -59,7 +59,7 @@ define base_synthesis
 	$(ECHO) "create_clock -period ${TARGET} -name clk [get_ports clk]" > $(OUTPUT)/constraints.xdc
 	$(CAT) $(FILES) base_synth.tcl | sed s/%%TOP%%/${TOP}/ | sed s/%%CHECKPOINT%%/"$(subst /,\/,$(OUTPUT))\/checkpoints"/ | sed s/%%CONSTRAINTS%%/"$(subst /,\/,$(OUTPUT))\/constraints.xdc"/ | sed s/%%DEFINE%%/""/> $(OUTPUT)/baseline.tcl
 	$(VIVADO) -mode batch -source $(OUTPUT)/baseline.tcl > $(OUTPUT)/base_report
-	$(MV) vivado* .Xil fsm_encoding.os unmatchedCells.txt $(OUTPUT)
+	$(MV) vivado* .Xil unmatchedCells.txt $(OUTPUT)
 endef
 
 #benchmark top category define target output_directory baseline_dir
@@ -75,7 +75,7 @@ define incr_synthesis
 	$(ECHO) "create_clock -period ${TARGET} -name clk [get_ports clk]" > $(OUTPUT)/constraints.xdc
 	$(CAT) $(FILES) inc_synth.tcl | sed s/%%TOP%%/${TOP}/ | sed s/%%BASE_CHK_DIR%%/"$(subst /,\/,$(BASELINE))\/checkpoints"/ | sed s/%%CHECKPOINT%%/"$(subst /,\/,$(OUTPUT))\/checkpoints"/ | sed s/%%CONSTRAINTS%%/"$(subst /,\/,$(OUTPUT))\/constraints.xdc"/ | sed s/%%DEFINE%%/"-verilog_define ${DEFINE}=1"/ > $(OUTPUT)/incr.tcl
 	$(VIVADO) -mode batch -source $(OUTPUT)/incr.tcl -tclargs ${DEFINE} > $(OUTPUT)/report
-	$(MV) vivado* .Xil fsm_encoding.os unmatchedCells.txt $(OUTPUT)
+	$(MV) vivado* .Xil unmatchedCells.txt $(OUTPUT)
 endef
 
 # Please provide a cleanup rule
