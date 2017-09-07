@@ -33,13 +33,13 @@ YOSYS=@../../yosys/yosys
 
 define all
 	$(eval BENCH := $1)
-	$(eval TOP := ${TOP_$1})
+	$(eval TOP := $(TOP_$1))
 	$(eval DEFINE := $2)
-	$(eval TARGET := ${TARGET_$1})
+	$(eval TARGET := $(TARGET_$1))
 	$(eval OUTPUT := $3)
-	$(eval FILES := $(shell echo ${BENCH} | tr A-Z a-z)_files.tcl)
-	$(CAT) $(FILES) base_synth.ys | sed s/%%TOP%%/${TOP}/ | sed s/%%TARGET%%/${TARGET}/ | sed s/%%DEFINE%%/"${DEFINE}=1"/ > ${OUTPUT}/script.ys
-	$(YOSYS) -d -s ${OUTPUT}/script.ys > $(OUTPUT)/report
+	$(eval FILES := $(shell echo $(BENCH) | tr A-Z a-z)_files.tcl)
+	$(CAT) $(FILES) base_synth.ys | sed s/%%TOP%%/$(TOP)/ | sed s/%%TARGET%%/$(TARGET)/ | sed s/%%DEFINE%%/"$(DEFINE)=1"/ > $(OUTPUT)/script.ys
+	$(YOSYS) -d -s $(OUTPUT)/script.ys > $(OUTPUT)/report
 endef
 
 
@@ -56,15 +56,15 @@ define base_synthesis
 	$(call all,$1,"ANUBIS_NOTHING",$2,$3)
 endef
 
-#benchmark top category define target output_directory baseline_dir
+#benchmark top category define target output_directory base_dir
 #do not change function name
 define incr_synthesis
-	echo "Nothing to do here"
+	$(ECHO) "Nothing to do here"
 endef
 
 # Please provide a cleanup rule
 clean:
-	rm -rf $(OUTDIR)
+	$(RM) $(OUTDIR)
 
 ###############################################################################
 ### DO NOT TOUCH ANYTHING BEYOND THIS POINT                                 ###

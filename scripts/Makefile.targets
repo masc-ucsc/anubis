@@ -83,6 +83,6 @@ $(foreach BENCH,$(BENCHMARKS),$(eval $(call create_targets,${BENCH})))
 FULLS := $(addprefix full-,${BENCHMARKS})
 INCRS := $(addprefix incr-,${BENCHMARKS})
 
-complete: ${FULLS} ${INCRS}
+complete: clean ${FULLS} ${INCRS}
 
 
