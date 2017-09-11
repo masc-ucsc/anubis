@@ -26,8 +26,8 @@ TARGET_MOR1KX=10.00
 
 VIVADO=@vivado
 
-GENERATED_FILES_BASE=vivado* .Xil
-GENERATED_FILES_INCR=$(GENERATED_FILES_BASE) unmatchedCells.txt fsm_encoding.os
+GENERATED_FILES_BASE=vivado* .Xil fsm_encoding.os
+GENERATED_FILES_INCR=$(GENERATED_FILES_BASE) unmatchedCells.txt
 GENERATED_FILES_ALL=$(GENERATED_FILES_INCR)
 
 ###############################################################################
@@ -48,7 +48,7 @@ define full_synthesis
 	$(ECHO) "create_clock -period $(TARGET) -name clk [get_ports clk]" > $(OUTPUT)/constraints.xdc
 	$(CAT) $(FILES) base_synth.tcl | sed s/%%TOP%%/$(TOP)/ | sed s/%%CHECKPOINT%%/"$(subst /,\/,$(OUTPUT))\/checkpoints"/ | sed s/%%CONSTRAINTS%%/"$(subst /,\/,$(OUTPUT))\/constraints.xdc"/ | sed s/%%DEFINE%%/"-verilog_define $(DEFINE)=1"/ > $(OUTPUT)/full.tcl
 	$(VIVADO) -mode batch -source $(OUTPUT)/full.tcl -tclargs $(DEFINE) > $(OUTPUT)/report
-	$(MV) $(GENERATED_FILES_BASE) $(OUTPUT)
+	$(MV) $(GENERATED_FILES_BASE) $(OUTPUT) | echo "Not all expected files found"
 endef
 
 #benchmark top target output_directory
@@ -63,7 +63,7 @@ define base_synthesis
 	$(ECHO) "create_clock -period $(TARGET) -name clk [get_ports clk]" > $(OUTPUT)/constraints.xdc
 	$(CAT) $(FILES) base_synth.tcl | sed s/%%TOP%%/$(TOP)/ | sed s/%%CHECKPOINT%%/"$(subst /,\/,$(OUTPUT))\/checkpoints"/ | sed s/%%CONSTRAINTS%%/"$(subst /,\/,$(OUTPUT))\/constraints.xdc"/ | sed s/%%DEFINE%%/""/> $(OUTPUT)/base.tcl
 	$(VIVADO) -mode batch -source $(OUTPUT)/base.tcl > $(OUTPUT)/base_report
-	$(MV) $(GENERATED_FILES_BASE) $(OUTPUT)
+	$(MV) $(GENERATED_FILES_BASE) $(OUTPUT) | echo "Not all expected files found"
 endef
 
 #benchmark top category define target output_directory base_dir
@@ -79,7 +79,7 @@ define incr_synthesis
 	$(ECHO) "create_clock -period $(TARGET) -name clk [get_ports clk]" > $(OUTPUT)/constraints.xdc
 	$(CAT) $(FILES) incr_synth.tcl | sed s/%%TOP%%/$(TOP)/ | sed s/%%BASE_CHK_DIR%%/"$(subst /,\/,$(BASELINE))\/checkpoints"/ | sed s/%%CHECKPOINT%%/"$(subst /,\/,$(OUTPUT))\/checkpoints"/ | sed s/%%CONSTRAINTS%%/"$(subst /,\/,$(OUTPUT))\/constraints.xdc"/ | sed s/%%DEFINE%%/"-verilog_define ${DEFINE}=1"/ > $(OUTPUT)/incr.tcl
 	$(VIVADO) -mode batch -source $(OUTPUT)/incr.tcl -tclargs $(DEFINE) > $(OUTPUT)/report
-	$(MV) $(GENERATED_FILES_INCR) $(OUTPUT)
+	$(MV) $(GENERATED_FILES_INCR) $(OUTPUT) | echo "Not all expected files found"
 endef
 
 # Please provide a cleanup rule

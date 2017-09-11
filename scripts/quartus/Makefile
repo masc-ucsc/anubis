@@ -27,8 +27,8 @@ TARGET_MOR1KX=10.00
 QUARTUS_SH=@quartus_sh
 QUARTUS_STA=@quartus_sta
 
-GENERATED_FILES_BASE=db *.qpf  *.qsf output_files simulation timing_report_panel
-GENERATED_FILES_INCR=$(GENERATED_FILES_BASE) cr_ie_info.json
+GENERATED_FILES_BASE=db *.qpf  *.qsf output_files simulation timing_report_panel cr_ie_info.json
+GENERATED_FILES_INCR=$(GENERATED_FILES_BASE)
 GENERATED_FILES_ALL=$(GENERATED_FILES_BASE)
 
 ###############################################################################
@@ -51,7 +51,7 @@ define full_synthesis
 	$(QUARTUS_SH) -t $(OUTPUT)/full.tcl > $(OUTPUT)/full_report
 	$(CAT) timing.tcl | sed s/%%TOP%%/$(TOP)/g > $(OUTPUT)/timing.tcl
 	$(QUARTUS_STA) -t $(OUTPUT)/timing.tcl > $(OUTPUT)/timing.out
-	$(MV) $(GENERATED_FILES_BASE) $(OUTPUT)
+	$(MV) $(GENERATED_FILES_BASE) $(OUTPUT) | echo "Not all expected files found"
 endef
 
 #benchmark top target output_directory
@@ -68,7 +68,7 @@ define base_synthesis
 	$(QUARTUS_SH) -t $(OUTPUT)/base.tcl > $(OUTPUT)/base_report
 	$(CAT) timing.tcl | sed s/%%TOP%%/$(TOP)/g > $(OUTPUT)/timing.tcl
 	$(QUARTUS_STA) -t $(OUTPUT)/timing.tcl > $(OUTPUT)/timing.out
-	$(MV) $(GENERATED_FILES_BASE) $(OUTPUT)
+	$(MV) $(GENERATED_FILES_BASE) $(OUTPUT) | echo "Not all expected files found"
 endef
 
 #benchmark top category define target output_directory base_dir
@@ -87,8 +87,8 @@ define incr_synthesis
 	$(CAT) timing.tcl | sed s/%%TOP%%/$(TOP)/g > $(OUTPUT)/timing.tcl
 	$(QUARTUS_STA) -t $(OUTPUT)/timing.tcl > $(OUTPUT)/timing.out
 	$(MKDIR) $(OUTPUT)/base
-	$(MV) $(OUTPUT)/output_files $(OUTPUT)/simulation $(OUTPUT)/db $(OUTPUT)base
-	$(MV) $(GENERATED_FILES_INCR) $(OUTPUT)
+	$(MV) $(OUTPUT)/output_files $(OUTPUT)/simulation $(OUTPUT)/db $(OUTPUT)/base
+	$(MV) $(GENERATED_FILES_INCR) $(OUTPUT) | echo "Not all expected files found"
 endef
 
 # Please provide a cleanup rule
