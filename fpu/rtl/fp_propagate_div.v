@@ -240,7 +240,8 @@ module fp_propagate_div
         divp_nan_exp_prop_next    = `FP_EXP_BITS'bx;
         divp_nan_man_prop_next    = `FP_MAN_BITS'bx;
       end
-      /*end else begin
+ `ifdef ANUBIS_LOCAL_9
+    end else begin
         divp_nan_fault_prop_next        = 'b0;   //same functionality as a cgflop enabled with start
         divp_nan_sign_prop_next         = 'b0;
         divp_nan_exp_prop_next          = 'b0;
@@ -249,11 +250,9 @@ module fp_propagate_div
         divp_nan_state_prop_next        = 'b0;
         divp_nan_op_predec_prop_next    = 'b0;
         divp_nan_ready_prop_next        = 1'b0;
-      end*/
     end
- `ifdef ANUBIS_LOCAL_9
-   end
  `endif
+   end
 
 
 

@@ -920,7 +920,7 @@ module mor1kx_ctrl_cappuccino
   genvar k;
   generate
     for (k = 0; k < 8; k = k + 1)
-    begin
+    begin : spr_gerenerate_anubis
       assign spr_isr[k] = 0;
     end
   endgenerate
