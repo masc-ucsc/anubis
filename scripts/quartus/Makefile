@@ -46,12 +46,13 @@ define full_synthesis
 	$(eval TARGET := $($1_TARGET))
 	$(eval CLK := $($1_CLK))
 	$(eval OUTPUT := $3)
+	$(eval RULE := $4)
 	$(eval FILES := $(shell echo $(BENCH) | tr A-Z a-z)_files.tcl)
 	$(CAT) prologe.tcl $(FILES) base_synth.tcl | sed s/%%TOP%%/$(TOP)/g | sed s/%%DEFINE%%/$(DEFINE)=1/g | sed s/%%PERIOD%%/$(TARGET)/g | sed s/%%CLK%%/$(CLK)/g	> $(OUTPUT)/full.tcl
-	$(QUARTUS_SH) -t $(OUTPUT)/full.tcl > $(OUTPUT)/full_report
+	$(QUARTUS_SH) -t $(OUTPUT)/full.tcl > $(OUTPUT)/full_report || echo "Failed, run: make $(RULE)"
 	$(CAT) timing.tcl | sed s/%%TOP%%/$(TOP)/g > $(OUTPUT)/timing.tcl
-	$(QUARTUS_STA) -t $(OUTPUT)/timing.tcl > $(OUTPUT)/timing.out
-	$(MV) $(GENERATED_FILES_BASE) $(OUTPUT) | echo "Not all expected files found"
+	$(QUARTUS_STA) -t $(OUTPUT)/timing.tcl > $(OUTPUT)/timing.out || echo "Failed, run: make $(RULE)"
+	$(MV) $(GENERATED_FILES_BASE) $(OUTPUT) || echo "Not all expected files found"
 endef
 
 #benchmark top target output_directory
@@ -63,12 +64,13 @@ define base_synthesis
 	$(eval TARGET := $($1_TARGET))
 	$(eval OUTPUT := $2)
 	$(eval DEFINE := ANUBIS_NOTHING)
+	$(eval RULE := $3)
 	$(eval FILES := $(shell echo $(BENCH) | tr A-Z a-z)_files.tcl)
 	$(CAT) prologe.tcl $(FILES) base_synth.tcl | sed s/%%TOP%%/$(TOP)/g | sed s/%%DEFINE%%/$(DEFINE)=1/g | sed s/%%PERIOD%%/$(TARGET)/g | sed s/%%CLK%%/$(CLK)/g	> $(OUTPUT)/base.tcl
-	$(QUARTUS_SH) -t $(OUTPUT)/base.tcl > $(OUTPUT)/base_report
+	$(QUARTUS_SH) -t $(OUTPUT)/base.tcl > $(OUTPUT)/base_report || echo "Failed, run: make $(RULE)"
 	$(CAT) timing.tcl | sed s/%%TOP%%/$(TOP)/g > $(OUTPUT)/timing.tcl
-	$(QUARTUS_STA) -t $(OUTPUT)/timing.tcl > $(OUTPUT)/timing.out
-	$(MV) $(GENERATED_FILES_BASE) $(OUTPUT) | echo "Not all expected files found"
+	$(QUARTUS_STA) -t $(OUTPUT)/timing.tcl > $(OUTPUT)/timing.out || echo "Failed, run: make $(RULE)"
+	$(MV) $(GENERATED_FILES_BASE) $(OUTPUT) || echo "Not all expected files found"
 endef
 
 #benchmark top category define target output_directory base_dir
@@ -80,15 +82,16 @@ define incr_synthesis
 	$(eval TARGET := $($1_TARGET))
 	$(eval OUTPUT := $3)
 	$(eval BASELINE := $4)
+	$(eval RULE := $5)
 	$(eval FILES := $(shell echo $(BENCH) | tr A-Z a-z)_files.tcl)
 	$(CP) $(BASELINE) $(OUTPUT)
 	$(CAT) prologe.tcl $(FILES) incr_synth.tcl | sed s/%%TOP%%/$(TOP)/g | sed s/%%DEFINE%%/$(DEFINE)=1/g | sed s/%%PERIOD%%/$(TARGET)/g | sed s/%%CLK%%/$(CLK)/g	> $(OUTPUT)/incr.tcl
-	$(QUARTUS_SH) -t $(OUTPUT)/incr.tcl > $(OUTPUT)/incr_report
+	$(QUARTUS_SH) -t $(OUTPUT)/incr.tcl > $(OUTPUT)/incr_report || echo "Failed, run: make $(RULE)"
 	$(CAT) timing.tcl | sed s/%%TOP%%/$(TOP)/g > $(OUTPUT)/timing.tcl
-	$(QUARTUS_STA) -t $(OUTPUT)/timing.tcl > $(OUTPUT)/timing.out
+	$(QUARTUS_STA) -t $(OUTPUT)/timing.tcl > $(OUTPUT)/timing.out || echo "Failed, run: make $(RULE)"
 	$(MKDIR) $(OUTPUT)/base
 	$(MV) $(OUTPUT)/output_files $(OUTPUT)/simulation $(OUTPUT)/db $(OUTPUT)/base
-	$(MV) $(GENERATED_FILES_INCR) $(OUTPUT) | echo "Not all expected files found"
+	$(MV) $(GENERATED_FILES_INCR) $(OUTPUT) || echo "Not all expected files found"
 endef
 
 # Please provide a cleanup rule

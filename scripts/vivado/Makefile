@@ -44,11 +44,12 @@ define full_synthesis
 	$(eval DEFINE := $2)
 	$(eval TARGET := $($1_TARGET))
 	$(eval OUTPUT := $3)
+	$(eval RULE := $4)
 	$(eval FILES := $(shell echo $(BENCH) | tr A-Z a-z)_files.tcl)
 	$(ECHO) "create_clock -period $(TARGET) -name clk [get_ports clk]" > $(OUTPUT)/constraints.xdc
 	$(CAT) $(FILES) base_synth.tcl | sed s/%%TOP%%/$(TOP)/ | sed s/%%CHECKPOINT%%/"$(subst /,\/,$(OUTPUT))\/checkpoints"/ | sed s/%%CONSTRAINTS%%/"$(subst /,\/,$(OUTPUT))\/constraints.xdc"/ | sed s/%%DEFINE%%/"-verilog_define $(DEFINE)=1"/ > $(OUTPUT)/full.tcl
-	$(VIVADO) -mode batch -source $(OUTPUT)/full.tcl -tclargs $(DEFINE) > $(OUTPUT)/report
-	$(MV) $(GENERATED_FILES_BASE) $(OUTPUT) | echo "Not all expected files found"
+	$(VIVADO) -mode batch -source $(OUTPUT)/full.tcl -tclargs $(DEFINE) > $(OUTPUT)/report || echo "Failed, run: make $(RULE)"
+	$(MV) $(GENERATED_FILES_BASE) $(OUTPUT) || echo "Not all expected files found"
 endef
 
 #benchmark top target output_directory
@@ -59,11 +60,12 @@ define base_synthesis
 	$(eval TARGET := $2)
 	$(eval TARGET := $($1_TARGET))
 	$(eval OUTPUT := $2)
+	$(eval RULE := $3)
 	$(eval FILES := $(shell echo $(BENCH) | tr A-Z a-z)_files.tcl)
 	$(ECHO) "create_clock -period $(TARGET) -name clk [get_ports clk]" > $(OUTPUT)/constraints.xdc
 	$(CAT) $(FILES) base_synth.tcl | sed s/%%TOP%%/$(TOP)/ | sed s/%%CHECKPOINT%%/"$(subst /,\/,$(OUTPUT))\/checkpoints"/ | sed s/%%CONSTRAINTS%%/"$(subst /,\/,$(OUTPUT))\/constraints.xdc"/ | sed s/%%DEFINE%%/""/> $(OUTPUT)/base.tcl
-	$(VIVADO) -mode batch -source $(OUTPUT)/base.tcl > $(OUTPUT)/base_report
-	$(MV) $(GENERATED_FILES_BASE) $(OUTPUT) | echo "Not all expected files found"
+	$(VIVADO) -mode batch -source $(OUTPUT)/base.tcl > $(OUTPUT)/base_report || echo "Failed, run: make $(RULE)"
+	$(MV) $(GENERATED_FILES_BASE) $(OUTPUT) || echo "Not all expected files found"
 endef
 
 #benchmark top category define target output_directory base_dir
@@ -75,11 +77,12 @@ define incr_synthesis
 	$(eval TARGET := $($1_TARGET))
 	$(eval OUTPUT := $3)
 	$(eval BASELINE := $4)
+	$(eval RULE := $5)
 	$(eval FILES := $(shell echo $(BENCH) | tr A-Z a-z)_files.tcl)
 	$(ECHO) "create_clock -period $(TARGET) -name clk [get_ports clk]" > $(OUTPUT)/constraints.xdc
 	$(CAT) $(FILES) incr_synth.tcl | sed s/%%TOP%%/$(TOP)/ | sed s/%%BASE_CHK_DIR%%/"$(subst /,\/,$(BASELINE))\/checkpoints"/ | sed s/%%CHECKPOINT%%/"$(subst /,\/,$(OUTPUT))\/checkpoints"/ | sed s/%%CONSTRAINTS%%/"$(subst /,\/,$(OUTPUT))\/constraints.xdc"/ | sed s/%%DEFINE%%/"-verilog_define ${DEFINE}=1"/ > $(OUTPUT)/incr.tcl
-	$(VIVADO) -mode batch -source $(OUTPUT)/incr.tcl -tclargs $(DEFINE) > $(OUTPUT)/report
-	$(MV) $(GENERATED_FILES_INCR) $(OUTPUT) | echo "Not all expected files found"
+	$(VIVADO) -mode batch -source $(OUTPUT)/incr.tcl -tclargs $(DEFINE) > $(OUTPUT)/report || echo "Failed, run: make $(RULE)"
+	$(MV) $(GENERATED_FILES_INCR) $(OUTPUT) || echo "Not all expected files found"
 endef
 
 # Please provide a cleanup rule
