@@ -27,7 +27,7 @@ TARGET_MOR1KX=10.00
 QUARTUS_SH=@quartus_sh
 QUARTUS_STA=@quartus_sta
 
-GENERATED_FILES_BASE=db *.qpf  *.qsf output_files simulation timing_report_panel cr_ie_info.json
+GENERATED_FILES_BASE=db *.qpf  *.qsf output_files simulation timing_report_panel cr_ie_info.json *.sdc
 GENERATED_FILES_INCR=$(GENERATED_FILES_BASE)
 GENERATED_FILES_ALL=$(GENERATED_FILES_BASE)
 
@@ -49,6 +49,7 @@ define full_synthesis
 	$(eval RULE := $4)
 	$(eval FILES := $(shell echo $(BENCH) | tr A-Z a-z)_files.tcl)
 	$(CAT) prologe.tcl $(FILES) base_synth.tcl | sed s/%%TOP%%/$(TOP)/g | sed s/%%DEFINE%%/$(DEFINE)=1/g | sed s/%%PERIOD%%/$(TARGET)/g | sed s/%%CLK%%/$(CLK)/g	> $(OUTPUT)/full.tcl
+	$(ECHO) "create_clock -period $(TARGET) -name clk [get_ports $(CLK)]" > $(TOP).sdc
 	$(QUARTUS_SH) -t $(OUTPUT)/full.tcl > $(OUTPUT)/full_report || echo "Failed, run: make $(RULE)"
 	$(CAT) timing.tcl | sed s/%%TOP%%/$(TOP)/g > $(OUTPUT)/timing.tcl
 	$(QUARTUS_STA) -t $(OUTPUT)/timing.tcl > $(OUTPUT)/timing.out || echo "Failed, run: make $(RULE)"
@@ -60,13 +61,14 @@ endef
 define base_synthesis
 	$(eval BENCH := $1)
 	$(eval TOP := $(TOP_$1))
-	$(eval TARGET := $2)
 	$(eval TARGET := $($1_TARGET))
+	$(eval CLK := $($1_CLK))
 	$(eval OUTPUT := $2)
 	$(eval DEFINE := ANUBIS_NOTHING)
 	$(eval RULE := $3)
 	$(eval FILES := $(shell echo $(BENCH) | tr A-Z a-z)_files.tcl)
 	$(CAT) prologe.tcl $(FILES) base_synth.tcl | sed s/%%TOP%%/$(TOP)/g | sed s/%%DEFINE%%/$(DEFINE)=1/g | sed s/%%PERIOD%%/$(TARGET)/g | sed s/%%CLK%%/$(CLK)/g	> $(OUTPUT)/base.tcl
+	$(ECHO) "create_clock -period $(TARGET) -name clk [get_ports $(CLK)]" > $(TOP).sdc
 	$(QUARTUS_SH) -t $(OUTPUT)/base.tcl > $(OUTPUT)/base_report || echo "Failed, run: make $(RULE)"
 	$(CAT) timing.tcl | sed s/%%TOP%%/$(TOP)/g > $(OUTPUT)/timing.tcl
 	$(QUARTUS_STA) -t $(OUTPUT)/timing.tcl > $(OUTPUT)/timing.out || echo "Failed, run: make $(RULE)"
@@ -80,12 +82,14 @@ define incr_synthesis
 	$(eval TOP := $(TOP_$1))
 	$(eval DEFINE := $2)
 	$(eval TARGET := $($1_TARGET))
+	$(eval CLK := $($1_CLK))
 	$(eval OUTPUT := $3)
 	$(eval BASELINE := $4)
 	$(eval RULE := $5)
 	$(eval FILES := $(shell echo $(BENCH) | tr A-Z a-z)_files.tcl)
 	$(CP) $(BASELINE) $(OUTPUT)
 	$(CAT) prologe.tcl $(FILES) incr_synth.tcl | sed s/%%TOP%%/$(TOP)/g | sed s/%%DEFINE%%/$(DEFINE)=1/g | sed s/%%PERIOD%%/$(TARGET)/g | sed s/%%CLK%%/$(CLK)/g	> $(OUTPUT)/incr.tcl
+	$(ECHO) "create_clock -period $(TARGET) -name clk [get_ports $(CLK)]" > $(TOP).sdc
 	$(QUARTUS_SH) -t $(OUTPUT)/incr.tcl > $(OUTPUT)/incr_report || echo "Failed, run: make $(RULE)"
 	$(CAT) timing.tcl | sed s/%%TOP%%/$(TOP)/g > $(OUTPUT)/timing.tcl
 	$(QUARTUS_STA) -t $(OUTPUT)/timing.tcl > $(OUTPUT)/timing.out || echo "Failed, run: make $(RULE)"

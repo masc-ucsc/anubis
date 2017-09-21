@@ -1,8 +1,7 @@
 
-set DELTA_ERROR "%%DELTA%%"
 project_open -revision $TOP $TOP
 
-set_global_assignment -name VERILOG_MACRO $DELTA_ERROR
+set_global_assignment -name VERILOG_MACRO "%%DEFINE%%"
 
 export_assignments
 execute_flow -recompile

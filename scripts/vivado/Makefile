@@ -30,6 +30,8 @@ GENERATED_FILES_BASE=vivado* .Xil fsm_encoding.os
 GENERATED_FILES_INCR=$(GENERATED_FILES_BASE) unmatchedCells.txt
 GENERATED_FILES_ALL=$(GENERATED_FILES_INCR)
 
+PART=xcvu080-ffva2104-1-i
+
 ###############################################################################
 ### YOUR CODE GOES HERE                                                     ###
 ###############################################################################
@@ -43,11 +45,12 @@ define full_synthesis
 	$(eval TOP := $(TOP_$1))
 	$(eval DEFINE := $2)
 	$(eval TARGET := $($1_TARGET))
+	$(eval CLK := $($1_CLK))
 	$(eval OUTPUT := $3)
 	$(eval RULE := $4)
 	$(eval FILES := $(shell echo $(BENCH) | tr A-Z a-z)_files.tcl)
-	$(ECHO) "create_clock -period $(TARGET) -name clk [get_ports clk]" > $(OUTPUT)/constraints.xdc
-	$(CAT) $(FILES) base_synth.tcl | sed s/%%TOP%%/$(TOP)/ | sed s/%%CHECKPOINT%%/"$(subst /,\/,$(OUTPUT))\/checkpoints"/ | sed s/%%CONSTRAINTS%%/"$(subst /,\/,$(OUTPUT))\/constraints.xdc"/ | sed s/%%DEFINE%%/"-verilog_define $(DEFINE)=1"/ > $(OUTPUT)/full.tcl
+	$(ECHO) "create_clock -period $(TARGET) -name clk [get_ports $(CLK)]" > $(OUTPUT)/constraints.xdc
+	$(CAT) $(FILES) base_synth.tcl | sed s/%%TOP%%/$(TOP)/ | sed s/%%PART%%/$(PART)/ | sed s/%%CHECKPOINT%%/"$(subst /,\/,$(OUTPUT))\/checkpoints"/ | sed s/%%CONSTRAINTS%%/"$(subst /,\/,$(OUTPUT))\/constraints.xdc"/ | sed s/%%DEFINE%%/"-verilog_define $(DEFINE)=1"/ > $(OUTPUT)/full.tcl
 	$(VIVADO) -mode batch -source $(OUTPUT)/full.tcl -tclargs $(DEFINE) > $(OUTPUT)/report || echo "Failed, run: make $(RULE)"
 	$(MV) $(GENERATED_FILES_BASE) $(OUTPUT) || echo "Not all expected files found"
 endef
@@ -57,13 +60,13 @@ endef
 define base_synthesis
 	$(eval BENCH := $1)
 	$(eval TOP := $(TOP_$1))
-	$(eval TARGET := $2)
 	$(eval TARGET := $($1_TARGET))
+	$(eval CLK := $($1_CLK))
 	$(eval OUTPUT := $2)
 	$(eval RULE := $3)
 	$(eval FILES := $(shell echo $(BENCH) | tr A-Z a-z)_files.tcl)
-	$(ECHO) "create_clock -period $(TARGET) -name clk [get_ports clk]" > $(OUTPUT)/constraints.xdc
-	$(CAT) $(FILES) base_synth.tcl | sed s/%%TOP%%/$(TOP)/ | sed s/%%CHECKPOINT%%/"$(subst /,\/,$(OUTPUT))\/checkpoints"/ | sed s/%%CONSTRAINTS%%/"$(subst /,\/,$(OUTPUT))\/constraints.xdc"/ | sed s/%%DEFINE%%/""/> $(OUTPUT)/base.tcl
+	$(ECHO) "create_clock -period $(TARGET) -name clk [get_ports $(CLK)]" > $(OUTPUT)/constraints.xdc
+	$(CAT) $(FILES) base_synth.tcl | sed s/%%TOP%%/$(TOP)/ | sed s/%%PART%%/$(PART)/ | sed s/%%CHECKPOINT%%/"$(subst /,\/,$(OUTPUT))\/checkpoints"/ | sed s/%%CONSTRAINTS%%/"$(subst /,\/,$(OUTPUT))\/constraints.xdc"/ | sed s/%%DEFINE%%/""/> $(OUTPUT)/base.tcl
 	$(VIVADO) -mode batch -source $(OUTPUT)/base.tcl > $(OUTPUT)/base_report || echo "Failed, run: make $(RULE)"
 	$(MV) $(GENERATED_FILES_BASE) $(OUTPUT) || echo "Not all expected files found"
 endef
@@ -75,12 +78,13 @@ define incr_synthesis
 	$(eval TOP := $(TOP_$1))
 	$(eval DEFINE := $2)
 	$(eval TARGET := $($1_TARGET))
+	$(eval CLK := $($1_CLK))
 	$(eval OUTPUT := $3)
 	$(eval BASELINE := $4)
 	$(eval RULE := $5)
 	$(eval FILES := $(shell echo $(BENCH) | tr A-Z a-z)_files.tcl)
-	$(ECHO) "create_clock -period $(TARGET) -name clk [get_ports clk]" > $(OUTPUT)/constraints.xdc
-	$(CAT) $(FILES) incr_synth.tcl | sed s/%%TOP%%/$(TOP)/ | sed s/%%BASE_CHK_DIR%%/"$(subst /,\/,$(BASELINE))\/checkpoints"/ | sed s/%%CHECKPOINT%%/"$(subst /,\/,$(OUTPUT))\/checkpoints"/ | sed s/%%CONSTRAINTS%%/"$(subst /,\/,$(OUTPUT))\/constraints.xdc"/ | sed s/%%DEFINE%%/"-verilog_define ${DEFINE}=1"/ > $(OUTPUT)/incr.tcl
+	$(ECHO) "create_clock -period $(TARGET) -name clk [get_ports $(CLK)]" > $(OUTPUT)/constraints.xdc
+	$(CAT) $(FILES) incr_synth.tcl | sed s/%%TOP%%/$(TOP)/ | sed s/%%PART%%/$(PART)/ | sed s/%%BASE_CHK_DIR%%/"$(subst /,\/,$(BASELINE))\/checkpoints"/ | sed s/%%CHECKPOINT%%/"$(subst /,\/,$(OUTPUT))\/checkpoints"/ | sed s/%%CONSTRAINTS%%/"$(subst /,\/,$(OUTPUT))\/constraints.xdc"/ | sed s/%%DEFINE%%/"-verilog_define ${DEFINE}=1"/ > $(OUTPUT)/incr.tcl
 	$(VIVADO) -mode batch -source $(OUTPUT)/incr.tcl -tclargs $(DEFINE) > $(OUTPUT)/report || echo "Failed, run: make $(RULE)"
 	$(MV) $(GENERATED_FILES_INCR) $(OUTPUT) || echo "Not all expected files found"
 endef
