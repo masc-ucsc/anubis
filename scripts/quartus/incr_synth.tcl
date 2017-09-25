@@ -1,6 +1,4 @@
 
-project_open -revision $TOP $TOP
-
 set_global_assignment -name VERILOG_MACRO "%%DEFINE%%"
 
 export_assignments

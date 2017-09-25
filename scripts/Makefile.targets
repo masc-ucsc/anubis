@@ -4,27 +4,27 @@
 	$(MKDIR) $(BASEDIR)
 	$(MKDIR) $(OUTDIR)
 	$(MKDIR) $(OUTDIR)/$*/
-	$(MKDIR) $(OUTDIR)/$*/full/
+	$(MKDIR) $(OUTDIR)/$*/$(FULL_PREFIX)/
 
 %-base-prep:
 	$(ECHO) "[ANUBIS][BASE] Preparing baseline synthesis"
 	$(MKDIR) $(BASEDIR)
 	$(MKDIR) $(OUTDIR)
 	$(MKDIR) $(OUTDIR)/$*/
-	$(MKDIR) $(OUTDIR)/$*/base
+	$(MKDIR) $(OUTDIR)/$*/$(BASE_PREFIX)/
 
 %-inc-prep:
 	$(ECHO) "[ANUBIS][INCR] Preparing incremental synthesis"
 	$(MKDIR) $(BASEDIR)
 	$(MKDIR) $(OUTDIR)
 	$(MKDIR) $(OUTDIR)/$*/
-	$(MKDIR) $(OUTDIR)/$*/incr/
+	$(MKDIR) $(OUTDIR)/$*/$(INCR_PREFIX)/
 
 define create_targets
 
-base-$1:
+base-$1: $1-base-prep
 	$(ECHO) "[ANUBIS][BASE] Starting baseline synthesis $1"
-	$(call base_synthesis,$1,${OUTDIR}/$1/base,base-$$$$*)
+	$(call base_synthesis,$1,${OUTDIR}/$1/$(BASE_PREFIX),base-$$$$*)
 
 $(eval NUMBERS := $(shell seq 0 ${NOC_$1}))
 $(eval NOCSF := $(addprefix $1-full-noc-,${NUMBERS}))
@@ -32,14 +32,14 @@ $(eval NOCSI := $(addprefix $1-incr-noc-,${NUMBERS}))
 
 ${NOCSF}: $1-full-noc-%:
 	$(ECHO) "[ANUBIS][FULL][NOC] Starting full synthesis NoC for $1 diff $$*"
-	$(MKDIR) $(OUTDIR)/$1/full/noc_$$*/
-	$(call full_synthesis,$1,ANUBIS_NOC_$$$$*,$(OUTDIR)/$1/full/noc_$$$$*/,$1-full-noc-$$$$*)
+	$(MKDIR) $(OUTDIR)/$1/$(FULL_PREFIX)/noc_$$*/
+	$(call full_synthesis,$1,ANUBIS_NOC_$$$$*,$(OUTDIR)/$1/$(FULL_PREFIX)/noc_$$$$*/,$1-full-noc-$$$$*)
 
 
 ${NOCSI}: $1-incr-noc-%:
 	$(ECHO) "[ANUBIS][INCR][NOC] Starting incr synthesis NoC for $1 diff $$*"
-	$(MKDIR) $(OUTDIR)/$1/incr/noc_$$*/
-	$(call incr_synthesis,$1,ANUBIS_NOC_$$$$*,$(OUTDIR)/$1/incr/noc_$$$$*/, $(OUTDIR)/$1/base,$1-incr-noc-$$$$*)
+	$(MKDIR) $(OUTDIR)/$1/$(INCR_PREFIX)/noc_$$*/
+	$(call incr_synthesis,$1,ANUBIS_NOC_$$$$*,$(OUTDIR)/$1/$(INCR_PREFIX)/noc_$$$$*/, $(OUTDIR)/$1/$(BASE_PREFIX),$1-incr-noc-$$$$*)
 
 
 $(eval NUMBERS := $(shell seq 0 ${LOCAL_$1}))
@@ -48,13 +48,13 @@ $(eval LOCALSI := $(addprefix $1-incr-local-,${NUMBERS}))
 
 ${LOCALSF}: $1-full-local-%:
 	$(ECHO) "[ANUBIS][FULL][LOCAL] Starting full synthesis LOCAL for $1 diff $$*"
-	$(MKDIR) $(OUTDIR)/$1/full/local_$$*/
-	$(call full_synthesis,$1,ANUBIS_LOCAL_$$$$*,$(OUTDIR)/$1/full/local_$$$$*/,$1-full-local-$$$$*)
+	$(MKDIR) $(OUTDIR)/$1/$(FULL_PREFIX)/local_$$*/
+	$(call full_synthesis,$1,ANUBIS_LOCAL_$$$$*,$(OUTDIR)/$1/$(FULL_PREFIX)/local_$$$$*/,$1-full-local-$$$$*)
 
 ${LOCALSI}: $1-incr-local-%:
 	$(ECHO) "[ANUBIS][INCR][LOCAL] Starting incr synthesis LOCAL for $1 diff $$*"
-	$(MKDIR) $(OUTDIR)/$1/incr/local_$$*/
-	$(call incr_synthesis,$1,ANUBIS_LOCAL_$$$$*,$(OUTDIR)/$1/incr/local_$$$$*/, $(OUTDIR)/$1/base,$1-incr-local-$$$$*)
+	$(MKDIR) $(OUTDIR)/$1/$(INCR_PREFIX)/local_$$*/
+	$(call incr_synthesis,$1,ANUBIS_LOCAL_$$$$*,$(OUTDIR)/$1/$(INCR_PREFIX)/local_$$$$*/, $(OUTDIR)/$1/$(BASE_PREFIX),$1-incr-local-$$$$*)
 
 
 $(eval NUMBERS := $(shell seq 0 ${$GLOBAL_1}))
@@ -63,26 +63,45 @@ $(eval GLOBALSI := $(addprefix $1-incr-global-,${NUMBERS}))
 
 ${GLOBALSF}: $1-full-global-%:
 	$(ECHO) "[ANUBIS][FULL][GLOBAL] Starting full synthesis GLOBAL for $1 diff $$*"
-	$(MKDIR) $(OUTDIR)/$1/full/global_$$*/
-	$(call full_synthesis,$1,ANUBIS_GLOBAL_$$$$*,$(OUTDIR)/$1/full/global_$$$$*/,$1-full-global-$$$$*)
+	$(MKDIR) $(OUTDIR)/$1/$(FULL_PREFIX)/global_$$*/
+	$(call full_synthesis,$1,ANUBIS_GLOBAL_$$$$*,$(OUTDIR)/$1/$(FULL_PREFIX)/global_$$$$*/,$1-full-global-$$$$*)
 
 ${GLOBALSI}: $1-incr-global-%:
 	$(ECHO) "[ANUBIS][INCT][GLOBAL] Starting incr synthesis GLOBAL for $1 diff $$*"
-	$(MKDIR) $(OUTDIR)/$1/incr/global_$$*/
-	$(call incr_synthesis,$1,ANUBIS_GLOBAL_$$$$*,$(OUTDIR)/$1/incr/global_$$$$*/, $(OUTDIR)/$1/base,$1-incr-global-$$$$*)
+	$(MKDIR) $(OUTDIR)/$1/$(INCR_PREFIX)/global_$$*/
+	$(call incr_synthesis,$1,ANUBIS_GLOBAL_$$$$*,$(OUTDIR)/$1/$(INCR_PREFIX)/global_$$$$*/, $(OUTDIR)/$1/$(BASE_PREFIX),$1-incr-global-$$$$*)
 
 full-$1: $1-full-prep ${NOCSF} ${LOCALSF} ${GLOBALSF}
 
-incr-$1: $1-base-prep base-$1 $1-inc-prep ${NOCSI} ${LOCALSI} ${GLOBALSI}
+incr-$1: base-$1 $1-inc-prep ${NOCSI} ${LOCALSI} ${GLOBALSI}
+
+clean-full-$1:
+	$(RM) $(OUTDIR)/$1/$(FULL_PREFIX)
+
+clean-incr-$1:
+	$(RM) $(OUTDIR)/$1/$(INCR_PREFIX)
+
+clean-base-$1:
+	$(RM) $(OUTDIR)/$1/$(BASE_PREFIX)
 
 endef
 
 
 $(foreach BENCH,$(BENCHMARKS),$(eval $(call create_targets,${BENCH})))
 
-FULLS := $(addprefix full-,${BENCHMARKS})
-INCRS := $(addprefix incr-,${BENCHMARKS})
+FULL := $(addprefix full-,${BENCHMARKS})
+INCR := $(addprefix incr-,${BENCHMARKS})
+BASE := $(addprefix base-,${BENCHMARKS})
 
-complete: clean ${FULLS} ${INCRS}
+CFULL := $(addprefix clean-full-,${BENCHMARKS})
+CINCR := $(addprefix clean-incr-,${BENCHMARKS})
+CBASE := $(addprefix clean-base-,${BENCHMARKS})
 
+full: ${FULL}
+
+incr: ${INCR}
+
+base: ${BASE}
+
+complete: clean ${FULL} ${INCR}
 
