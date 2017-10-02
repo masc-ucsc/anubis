@@ -49,11 +49,11 @@ module stage_flop_retry
     (input             clk
      ,input            reset
 
-     ,input  logic [Size-1:0]  din
+     ,input   [Size-1:0]  din
      ,input            dinValid
      ,output reg       dinRetry
 
-     ,output logic [Size-1:0]  q
+     ,output reg [Size-1:0]  q
      ,input            qRetry
      ,output reg       qValid
 
@@ -64,26 +64,26 @@ module stage_flop_retry
 
   // {{{1 Private variable priv_*i, failure, and shadowq declaration
   // Output private signals
-  logic [Size-1:0] shadowq;
-  logic c1;
-  logic c2;
-  logic shadowValid;
+  reg [Size-1:0] shadowq;
+  reg c1;
+  reg c2;
+  reg shadowValid;
 
-  logic          priv_qValid;
+  reg          priv_qValid;
   always @(*) begin
     qValid = priv_qValid;
   end
-  logic          priv_dinRetry;
+  reg          priv_dinRetry;
   always @(*) begin
     dinRetry = priv_dinRetry;
   end
 
   // Inputs private signals
-  logic          priv_qRetry;
+  reg          priv_qRetry;
   always @(*) begin
     priv_qRetry = qRetry;
   end
-  logic          priv_dinValid;
+  reg          priv_dinValid;
   always @(*) begin
     priv_dinValid = dinValid;
   end
@@ -107,7 +107,7 @@ module stage_flop_retry
   // 1}}}
 
   // {{{1 shadowq
-  logic s_enable;
+  reg s_enable;
   always @(*) begin
     s_enable = !shadowValid;
   end
@@ -120,7 +120,7 @@ module stage_flop_retry
   // 1}}}
 
    // {{{1 q
-  logic q_enable;
+  reg q_enable;
   always @(negedge clk) begin
     q_enable <= !c1; 
   end
@@ -133,7 +133,7 @@ module stage_flop_retry
   // 1}}}
 
   // {{{1 priv_qValid (qValid internal value)
-  logic priv_qValidla2;
+  reg priv_qValidla2;
   always @(posedge clk) begin
     if (reset) begin
       priv_qValidla2 <='b0;

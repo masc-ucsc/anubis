@@ -155,8 +155,8 @@ module fpu
   wire                               retry_sqrt;
   wire                               retry_misc;
 
-  logic denorm_rshift_man_div;
-  logic denorm_rshift_man_mult;
+  wire denorm_rshift_man_div;
+  wire denorm_rshift_man_mult;
 
   //retries passed to busy gen
 //  wire                               denorm_retry_add;

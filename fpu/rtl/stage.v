@@ -49,11 +49,11 @@ module stage
     (input             clk
      ,input            reset
      // Retry pipeline signals
-     ,input  logic [Size-1:0]  din
+     ,input  [Size-1:0]  din
      ,input            dinValid
      ,output           dinRetry
 
-     ,output logic [Size-1:0]  q
+     ,output  [Size-1:0]  q
      ,input            qRetry
      ,output           qValid
      //Re-clocking signals

@@ -24,8 +24,8 @@ FPU_TARGET=6.000
 OR1200_TARGET=10.00
 MOR1KX_TARGET=10.00
 
-QUARTUS_SH=@quartus_sh
-QUARTUS_STA=@quartus_sta
+QUARTUS_SH=quartus_sh
+QUARTUS_STA=quartus_sta
 QUARTUS_SH_INC=quartus_sh
 QUARTUS_STA_INC=quartus_sta
 
@@ -51,12 +51,14 @@ define full_synthesis
 	$(eval OUTPUT := $3)
 	$(eval RULE := $4)
 	$(eval FILES := $(shell echo $(BENCH) | tr A-Z a-z)_files.tcl)
-	$(CAT) prologe.tcl $(FILES) base_synth.tcl | sed s/%%TYPE%%/"project_new -overwrite"/g | sed s/%%TOP%%/$(TOP)/g | sed s/%%DEFINE%%/$(DEFINE)=1/g > $(OUTPUT)/full.tcl
-	$(ECHO) "create_clock -period $(TARGET) -name clk [get_ports $(CLK)]" > $(TOP).sdc
-	$(QUARTUS_SH) -t $(OUTPUT)/full.tcl > $(OUTPUT)/full_report || echo "Failed, run: make $(RULE)"
+	$(eval PWD := $(shell pwd))
+	$(CAT) prologe.tcl $(FILES) base_synth.tcl | sed s:%%PWD%%:"$(pwd)": | sed s/%%TYPE%%/"project_new -overwrite"/g | sed s/%%TOP%%/$(TOP)/g | sed s/%%DEFINE%%/$(DEFINE)=1/g > $(OUTPUT)/full.tcl
+	$(ECHO) "create_clock -period $(TARGET) -name clk [get_ports $(CLK)]" > $(OUTPUT)/$(TOP).sdc
+	$(CD) $(OUTPUT) ;\
+	$(QUARTUS_SH) -t full.tcl > full_report || echo "Failed, run: make $(RULE)"
 	$(CAT) timing.tcl | sed s/%%TOP%%/$(TOP)/g > $(OUTPUT)/timing.tcl
-	$(QUARTUS_STA) -t $(OUTPUT)/timing.tcl > $(OUTPUT)/timing.out || echo "Failed, run: make $(RULE)"
-	$(MV) $(GENERATED_FILES_BASE) $(OUTPUT) || echo "Not all expected files found"
+	$(CD) $(OUTPUT) ;\
+	$(QUARTUS_STA) -t timing.tcl > timing.out || echo "Failed, run: make $(RULE)"
 endef
 
 #benchmark top target output_directory
@@ -70,12 +72,15 @@ define base_synthesis
 	$(eval DEFINE := ANUBIS_NOTHING)
 	$(eval RULE := $3)
 	$(eval FILES := $(shell echo $(BENCH) | tr A-Z a-z)_files.tcl)
-	$(CAT) prologe.tcl $(FILES) base_synth.tcl | sed s/%%TYPE%%/"project_new -overwrite"/g | sed s/%%TOP%%/$(TOP)/g | sed s/%%DEFINE%%/$(DEFINE)=1/g > $(OUTPUT)/base.tcl
-	$(ECHO) "create_clock -period $(TARGET) -name clk [get_ports $(CLK)]" > $(TOP).sdc
-	$(QUARTUS_SH) -t $(OUTPUT)/base.tcl > $(OUTPUT)/base_report || echo "Failed, run: make $(RULE)"
+	$(eval PWD := $(shell pwd))
+	$(eval pwd := $(subst "/","\/",$(PWD)))
+	$(CAT) prologe.tcl $(FILES) base_synth.tcl | sed s:%%PWD%%:"$(pwd)": | sed s/%%TYPE%%/"project_new -overwrite"/g | sed s/%%TOP%%/$(TOP)/g | sed s/%%DEFINE%%/$(DEFINE)=1/g > $(OUTPUT)/base.tcl
+	$(ECHO) "create_clock -period $(TARGET) -name clk [get_ports $(CLK)]" > $(OUTPUT)/$(TOP).sdc
+	$(CD) $(OUTPUT) ;\
+	$(QUARTUS_SH) -t base.tcl > base_report || echo "Failed, run: make $(RULE)"
 	$(CAT) timing.tcl | sed s/%%TOP%%/$(TOP)/g > $(OUTPUT)/timing.tcl
-	$(QUARTUS_STA) -t $(OUTPUT)/timing.tcl > $(OUTPUT)/timing.out || echo "Failed, run: make $(RULE)"
-	$(MV) $(GENERATED_FILES_BASE) $(OUTPUT) || echo "Not all expected files found"
+	$(CD) $(OUTPUT) ;\
+	$(QUARTUS_STA) -t timing.tcl > timing.out || echo "Failed, run: make $(RULE)"
 endef
 
 #benchmark top category define target output_directory base_dir
@@ -90,17 +95,15 @@ define incr_synthesis
 	$(eval BASELINE := $4)
 	$(eval RULE := $5)
 	$(eval FILES := $(shell echo $(BENCH) | tr A-Z a-z)_files.tcl)
-	$(CP) $(BASELINE) $(OUTPUT)
-	$(CAT) prologe.tcl $(FILES) incr_synth.tcl | sed s/%%TYPE%%/project_open/g | sed s/%%TOP%%/$(TOP)/g | sed s/%%DEFINE%%/$(DEFINE)=1/g > $(OUTPUT)/incr.tcl
+	$(CP) $(BASELINE)/* $(OUTPUT)
+	$(eval PWD := $(shell pwd))
+	$(CAT) prologe.tcl incr_synth.tcl | sed s:%%PWD%%:"$(pwd)": | sed s/%%TYPE%%/project_open/g | sed s/%%TOP%%/$(TOP)/g | sed s/%%DEFINE%%/$(DEFINE)=1/g > $(OUTPUT)/incr.tcl
 	$(ECHO) "create_clock -period $(TARGET) -name clk [get_ports $(CLK)]" > $(OUTPUT)/$(TOP).sdc
 	$(CD) $(OUTPUT) ;\
 	$(QUARTUS_SH_INC) -t ./incr.tcl > ./incr_report || echo "Failed, run: make $(RULE)"
 	$(CAT) timing.tcl | sed s/%%TOP%%/$(TOP)/g > $(OUTPUT)/timing.tcl
 	$(CD) $(OUTPUT) ;\
 	$(QUARTUS_STA_INC) -t ./timing.tcl > ./timing.out || echo "Failed, run: make $(RULE)"
-	#$(MKDIR) $(OUTPUT)/base
-	#$(MV) $(OUTPUT)/output_files $(OUTPUT)/simulation $(OUTPUT)/db $(OUTPUT)/base || echo ""
-	#$(MV) $(GENERATED_FILES_INCR) $(OUTPUT) || echo "Not all expected files found"
 endef
 
 # Please provide a cleanup rule
