@@ -43,8 +43,6 @@
 
 ****************************************************************************/
 
-`define LATCH_BASED 1
-
 module register
   #(parameter Size=1
    ,parameter ResetValue = 'b0)

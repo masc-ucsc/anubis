@@ -135,7 +135,7 @@ module or1200_dpram
    //
    // RAM write
    //
-   always @(posedge clk_b)
+   always @(posedge clk_a)
      if (ce_b & we_b)
        mem[addr_b] <=  di_b;
    
