@@ -1,0 +1,12 @@
+#!/bin/bash
+# Yosys+ABC performance script
+
+echo "Yosys benchmark for dlx, alpha, fpu, mor1kx, or1200 "
+/usr/bin/time -v -o dlx_time.txt yosys dlx_synth.ys
+/usr/bin/time -v -o alpha_time.txt yosys alpha_synth.ys
+/usr/bin/time -v -o fpu_time.txt yosys fpu_synth.ys
+/usr/bin/time -v -o mor1kx.txt yosys mor1kx_synth.ys
+/usr/bin/time -v -o or1200.txt yosys or1200_synth.ys
+
+echo "(dlx_blif, alpha_blif, fpu_blif, mor1kx_blif, or1200_blif) files created" 
+echo "Performance time saved at dlx_time.txt, alpha_time.txt, fpu_time.txt, mor1kx.txt, or1200.txt"

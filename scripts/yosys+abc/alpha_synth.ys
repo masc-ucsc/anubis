@@ -1,0 +1,33 @@
+
+
+read_verilog -sv ../../alpha/sys_defs.vh
+read_verilog -sv ../../alpha/ex_stage.v
+read_verilog -sv ../../alpha/id_stage.v
+read_verilog -sv ../../alpha/if_stage.v
+read_verilog -sv ../../alpha/mem_stage.v
+read_verilog -sv ../../alpha/pipeline.v
+read_verilog -sv ../../alpha/regfile.v
+read_verilog -sv ../../alpha/wb_stage.v
+
+hierarchy -top pipeline
+select -assert-any pipeline
+select -clear
+proc_arst
+proc
+opt -fast
+
+proc
+flatten
+synth -run coarse
+opt -fast -full
+memory -nomap
+opt -full
+opt -fast
+techmap -D ALU_RIPPLE
+opt -fast
+abc -D 10.000 pipeline
+
+clean
+hierarchy -check
+stat
+write_blif alpha_blif
